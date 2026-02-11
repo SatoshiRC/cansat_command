@@ -8,8 +8,8 @@
 #ifndef COMMAND_INC_COMMANDMANAGER_H_
 #define COMMAND_INC_COMMANDMANAGER_H_
 
-#include <CommandHandlerBase.h>
-#include <CommandHandlers.hpp>
+#include "CommandHandlerBase.h"
+#include "CommandHandlers.hpp"
 #include <array>
 #include <algorithm>
 

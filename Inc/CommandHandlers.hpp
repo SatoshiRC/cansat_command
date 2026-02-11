@@ -9,7 +9,7 @@
 #define COMMAND_INC_COMMANDHANDLERS_HPP_
 
 #include "CommandHandlerBase.h"
-#include "DataType.hpp"
+#include "CommandDataType.hpp"
 
 namespace command{
 
