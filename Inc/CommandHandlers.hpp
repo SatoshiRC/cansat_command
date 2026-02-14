@@ -23,7 +23,7 @@ class ConnectionCheck : public Base{
     
 public:
     ConnectionCheck() = default;
-    ConnectionCheck(std::function<void(uint8_t&, bool&)> update = [](uint8_t&, bool&){}):update(update){}
+    ConnectionCheck(std::function<void(uint8_t&, bool&)> update):update(update){}
     COMMAND_ID onReceive(std::vector<uint8_t> &body);
 	std::vector<uint8_t> transmit();
     void setUpdate(std::function<void(uint8_t&, bool&)> func){
