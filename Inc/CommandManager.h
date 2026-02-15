@@ -18,12 +18,18 @@ namespace command {
 class CommandManager {
 	std::array<command::Base*, (uint8_t)COMMAND_ID::Last> commandHandlers;
 	static constexpr std::array<uint8_t, (uint8_t)COMMAND_ID::Last> commandLen = {
-		ConnectionCheck::getDataBodyLen()
+        ConnectionCheck::getDataBodyLen(),
+        SensorStatus::getDataBodyLen(),
+        Request::getDataBodyLen(),
+        Goal::getDataBodyLen(),
+        Altitude::getDataBodyLen(),
+        Mode::getDataBodyLen(),
+        AbsoluteNavigation::getDataBodyLen(),
+        RelativeNavigation::getDataBodyLen(),
+        ServoConfig_prachuteLeft::getDataBodyLen(),
+        ServoConfig_prachuteRight::getDataBodyLen(),
+        ServoConfig_stabilizer::getDataBodyLen(),
 	};
-
-	constexpr uint8_t getMaxBufferLen(){
-		return *std::max_element(commandLen.begin(), commandLen.end());
-	}
 
 	const uint8_t START_BYTE = 's';
 	const uint8_t STOP_BYTE = 'e';
