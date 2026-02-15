@@ -13,6 +13,11 @@
 #include <array>
 #include <algorithm>
 
+template<class ForwardIterator>
+constexpr ForwardIterator getMaxElement(const ForwardIterator first, const ForwardIterator last){
+    return first == (last-1) ? first : (*first < *(last-1) ? getMaxElement(first+1, last) : getMaxElement(first, last-1));
+}
+
 namespace command {
 
 class CommandManager {
