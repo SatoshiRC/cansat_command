@@ -29,6 +29,12 @@ public:
     void setUpdate(std::function<void(uint8_t&, bool&)> func){
         update = func;
     }
+    uint8_t getData() const {
+        return data;
+    }
+    void setData(uint8_t value){
+        data = value;
+    }
 };
 
 class SensorStatus : public Base{
@@ -57,6 +63,12 @@ public:
 	std::vector<uint8_t> transmit();
     void setUpdate(std::function<void(CommandDataType::SensorStatus&)> func){
         update = func;
+    }
+    const CommandDataType::SensorStatus& getData() const {
+        return data;
+    }
+    void setData(const CommandDataType::SensorStatus &value){
+        data = value;
     }
 };
 
@@ -98,6 +110,12 @@ public:
     void setUpdate(std::function<void(CommandDataType::Coordinates&)> func){
         update = func;
     }
+    const CommandDataType::Coordinates& getData() const {
+        return data;
+    }
+    void setData(const CommandDataType::Coordinates &value){
+        data = value;
+    }
 };
 
 class Altitude : public Base{
@@ -121,6 +139,12 @@ public:
     void setUpdate(std::function<void(CommandDataType::Altitude&)> func){
         update = func;
     }
+    const CommandDataType::Altitude& getData() const {
+        return data;
+    }
+    void setData(const CommandDataType::Altitude &value){
+        data = value;
+    }
 };
 
 class Mode : public Base{
@@ -142,6 +166,12 @@ public:
     }
     void setUpdate(std::function<void(uint8_t&)> func){
         update = func;
+    }
+    uint8_t getData() const {
+        return data;
+    }
+    void setData(uint8_t value){
+        data = value;
     }
 };
 
@@ -166,6 +196,12 @@ public:
     void setUpdate(std::function<void(CommandDataType::AbsoluteNavigation&)> func){
         update = func;
     }
+    const CommandDataType::AbsoluteNavigation& getData() const {
+        return data;
+    }
+    void setData(const CommandDataType::AbsoluteNavigation &value){
+        data = value;
+    }
 };
 
 class RelativeNavigation : public Base {
@@ -189,6 +225,12 @@ public:
     void setUpdate(std::function<void(CommandDataType::RelativeNavigation&)> func){
         update = func;
     }
+    const CommandDataType::RelativeNavigation& getData() const {
+        return data;
+    }
+    void setData(const CommandDataType::RelativeNavigation &value){
+        data = value;
+    }
 };
 
 class ServoConfig : public Base {
@@ -210,6 +252,12 @@ public:
     }
     void setUpdate(std::function<void(CommandDataType::ServoConfig&)> func){
         update = func;
+    }
+    const CommandDataType::ServoConfig& getData() const {
+        return data;
+    }
+    void setData(const CommandDataType::ServoConfig &value){
+        data = value;
     }
 };
 class ServoConfig_prachuteLeft : public ServoConfig{
