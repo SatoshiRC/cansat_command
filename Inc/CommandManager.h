@@ -36,6 +36,10 @@ class CommandManager {
         ServoConfig_stabilizer::getDataBodyLen(),
 	};
 
+    std::array<uint8_t, static_cast<size_t>((*getMaxElement(commandLen.begin(), commandLen.end())+4)*2)> rBuffer = {};
+    uint8_t copyCursor = 0;
+    uint8_t readCursor = 0;
+
 	const uint8_t START_BYTE = 's';
 	const uint8_t STOP_BYTE = 'e';
 
@@ -50,8 +54,69 @@ public:
 	void transmit(const COMMAND_ID id);
 
 	template<typename _ForwardIterator>
-	void receive(_ForwardIterator __first, _ForwardIterator __last){
+	COMMAND_ID receive(_ForwardIterator __first, _ForwardIterator __last){
+uint8_t len = __last - __first;
+        if(len > rBuffer.size()){
+            resetBuffer();
+            return COMMAND_ID::Last;
+        }
 
+        //avoid over-flow
+        if(rBuffer.size() < copyCursor + len){
+            std::copy(__first, __first + (rBuffer.size() - copyCursor), rBuffer.begin()+copyCursor);
+            __first += rBuffer.size() - copyCursor;
+            len = __last - __first;
+            copyCursor = 0;
+        }
+
+        if(len > readCursor){
+            resetBuffer();
+            return COMMAND_ID::Last;
+        }
+
+        std::copy(__first, __last, rBuffer.begin()+copyCursor);
+        int8_t reamingLen = copyCursor - readCursor;
+        while(reamingLen){
+            reamingLen += rBuffer.size();
+        }
+        for(; reamingLen>0; reamingLen--){
+            if(rBuffer[readCursor] != START_BYTE){
+                readCursor = (readCursor+1)%rBuffer.size();
+                continue;
+            }
+            uint8_t possibleId = rBuffer[(readCursor+1)%rBuffer.size()];
+            if(possibleId >= static_cast<uint8_t>(COMMAND_ID::Last)){
+                //There is no valid id for possibleId.
+                readCursor = (readCursor+1)%rBuffer.size();
+                continue;
+            }
+            uint8_t frameLen = commandLen[possibleId]+4;
+            if(reamingLen < frameLen){
+                //Wait for next receive.
+                break;
+            }
+            if(rBuffer[(readCursor + frameLen)%rBuffer.size()] != STOP_BYTE){
+                readCursor = (readCursor+1)%rBuffer.size();
+                continue;
+            }
+
+            std::vector<uint8_t> frame(frameLen);
+            uint8_t copiedLen = 0;
+            if(readCursor + frameLen > rBuffer.size()){
+                std::copy(rBuffer.begin()+readCursor, rBuffer.end(), frame.begin());
+                copiedLen = rBuffer.size() - readCursor;
+                readCursor = 0;
+            }
+            std::copy(rBuffer.begin()+readCursor, rBuffer.begin()+readCursor+frameLen-copiedLen, frame.begin() + copiedLen);
+            COMMAND_ID id = onReceiveFrame(frame);
+            readCursor = readCursor + frameLen - copiedLen;
+            return id;
+        }
+        return COMMAND_ID::Last;
+	}
+
+    COMMAND_ID onReceiveFrame(const std::vector<uint8_t> &frame){
+        return onReceiveFrame(&*frame.begin(), &*frame.end());
 	}
 
 	template<size_t size>
@@ -88,6 +153,8 @@ public:
         return rid;
 	}
 
+private:
+    void resetBuffer();
 };
 
 } /* namespace command */

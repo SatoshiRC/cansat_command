@@ -31,4 +31,10 @@ namespace command{
 	__attribute__((weak)) void CommandManager::transmit(const COMMAND_ID id){
 		auto frame = constructTransmitFrame(id);
 	}
+
+    void CommandManager::resetBuffer(){
+        copyCursor = 0;
+        readCursor = 0;
+        rBuffer.fill(0);
+    }
 }
