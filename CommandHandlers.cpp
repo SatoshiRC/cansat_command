@@ -11,10 +11,10 @@ namespace command{
 
 COMMAND_ID ConnectionCheck::onReceive(std::vector<uint8_t> &body){
     if (body[0] >> 7 == 1){
-        value = 0b0111111 & body[0];
+        data = 0b0111111 & body[0];
         isLoopback = true;
     }else{
-        value = 0b0111111 & body[0];
+        data = 0b0111111 & body[0];
         isLoopback = false;
     }
 
@@ -25,13 +25,12 @@ COMMAND_ID ConnectionCheck::onReceive(std::vector<uint8_t> &body){
 
 std::vector<uint8_t> ConnectionCheck::transmit(){
     std::vector<uint8_t> res(dataBodyLen);
-    res[0] = value & ((1*!isLoopback) << 7);
+    res[0] = data & ((1*!isLoopback) << 7);
 
     return res;
 }
 
 COMMAND_ID SensorStatus::onReceive(std::vector<uint8_t> &body){
-    CommandDataType::SensorStatus data;
     data.tof() = body[0] & 0b1<<tofOffset;
     data.camera() = body[0] & 0b1<<cameraOffset;
     data.barometer() = body[0] & 0b1<<barometerOffset;
@@ -68,11 +67,9 @@ std::vector<uint8_t> Request::transmit(){
 }
 
 COMMAND_ID Goal::onReceive(std::vector<uint8_t> &body){
-    CommandDataType::Coordinates coordinate;
-
-    std::copy(body.begin(), body.begin()+8, &coordinate.latitude());
-    std::copy(body.begin()+8, body.begin()+16, &coordinate.longitude());
-    callback(coordinate);
+    std::copy(body.begin(), body.begin()+8, &data.latitude());
+    std::copy(body.begin()+8, body.begin()+16, &data.longitude());
+    callback(data);
     
     return COMMAND_ID::Last;
 }
@@ -92,7 +89,6 @@ std::vector<uint8_t> Goal::transmit(){
 }
 
 COMMAND_ID Altitude::onReceive(std::vector<uint8_t> &body){
-    CommandDataType::Altitude data;
     auto it = body.begin();
     std::copy(it,it+2, &data.altitude());
     it += 2;
@@ -123,7 +119,8 @@ std::vector<uint8_t> Altitude::transmit(){
 }
 
 COMMAND_ID Mode::onReceive(std::vector<uint8_t> &body){
-    callback(body[0]);
+    data = body[0];
+    callback(data);
     return COMMAND_ID::Last;
 }
 
@@ -135,8 +132,6 @@ std::vector<uint8_t> Mode::transmit(){
 }
 
 COMMAND_ID AbsoluteNavigation::onReceive(std::vector<uint8_t> &body){
-    CommandDataType::AbsoluteNavigation data;
-
     uint8_t offset = 0;
     uint8_t size = 3;
     copy(body.data() + offset, &data.relativePositionNorth(), size);
@@ -185,8 +180,6 @@ std::vector<uint8_t> AbsoluteNavigation::transmit(){
 }
 
 COMMAND_ID RelativeNavigation::onReceive(std::vector<uint8_t> &body){
-    CommandDataType::RelativeNavigation data;
-
     uint8_t offset = 0;
     uint8_t size = 3;
     copy(body.data() + offset, &data.relativePositionNorth(), size);
@@ -252,8 +245,6 @@ std::vector<uint8_t> RelativeNavigation::transmit(){
 }
 
 COMMAND_ID ServoConfig::onReceive(std::vector<uint8_t> &body){
-    CommandDataType::ServoConfig data;
-
     uint8_t offset = 0;
     uint8_t size = 1;
     data.state() = (CommandDataType::ServoState)body[0];

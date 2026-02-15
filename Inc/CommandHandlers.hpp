@@ -17,7 +17,7 @@ class ConnectionCheck : public Base{
     static constexpr uint8_t dataBodyLen = 1;
     static constexpr COMMAND_ID id = COMMAND_ID::ConnectionCheck;
 
-    uint8_t value = 0;
+    uint8_t data = 0;
     bool isLoopback = false;
     std::function<void(uint8_t&, bool&)> update = [](uint8_t&, bool&){};
     
