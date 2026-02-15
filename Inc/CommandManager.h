@@ -54,8 +54,8 @@ public:
 	void transmit(const COMMAND_ID id);
 
 	template<typename _ForwardIterator>
-	COMMAND_ID receive(_ForwardIterator __first, _ForwardIterator __last){
-uint8_t len = __last - __first;
+    COMMAND_ID receive(_ForwardIterator __first, _ForwardIterator __last){
+        uint8_t len = __last - __first;
         if(len > rBuffer.size()){
             resetBuffer();
             return COMMAND_ID::Last;
@@ -117,41 +117,41 @@ uint8_t len = __last - __first;
 
     COMMAND_ID onReceiveFrame(const std::vector<uint8_t> &frame){
         return onReceiveFrame(&*frame.begin(), &*frame.end());
-	}
+    }
 
 	template<size_t size>
     COMMAND_ID onReceiveFrame(const std::array<uint8_t, size> &frame){
         return onReceiveFrame(frame.begin(), frame.end());
 	}
-		
+
     COMMAND_ID onReceiveFrame(const uint8_t* __first, const uint8_t* __last){
-		//validate frame
-		//check start and stop byte
+        //validate frame
+        //check start and stop byte
         if(*__first != START_BYTE || *__first != STOP_BYTE){
             return COMMAND_ID::Last;
-		}
-		//check sum
-		uint8_t sum = 0;
+        }
+        //check sum
+        uint8_t sum = 0;
         for(auto it = __first + 1; it < __last - 2; it++){
-			// exclude start byte and checksum/stop bytes
-			sum += *it;
-		}
+            // exclude start byte and checksum/stop bytes
+            sum += *it;
+        }
         if(sum != *(__last - 2)){
             return COMMAND_ID::Last;
-		}
+        }
 
         const COMMAND_ID rid = static_cast<COMMAND_ID>(*(__first + 1));
         std::vector<uint8_t> frameBody(__first+2, __last-2);
 
-		//check body length
-		if(frameBody.size() != commandLen[static_cast<uint8_t>(rid)]){
+        //check body length
+        if(frameBody.size() != commandLen[static_cast<uint8_t>(rid)]){
             return COMMAND_ID::Last;
-		}
+        }
 
-		const COMMAND_ID tid = commandHandlers[static_cast<uint8_t>(rid)]->onReceive(frameBody);
+        const COMMAND_ID tid = commandHandlers[static_cast<uint8_t>(rid)]->onReceive(frameBody);
         transmit(tid);
         return rid;
-	}
+    }
 
 private:
     void resetBuffer();
