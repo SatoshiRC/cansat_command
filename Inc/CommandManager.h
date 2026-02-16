@@ -46,8 +46,8 @@ class CommandManager {
 
 public:
 	CommandManager();
-	Base& operator[](COMMAND_ID id){
-		return *commandHandlers[static_cast<uint8_t>(id)];
+	Base*& operator[](COMMAND_ID id){
+		return commandHandlers[static_cast<uint8_t>(id)];
 	}
   	
 	std::vector<uint8_t> constructTransmitFrame(const COMMAND_ID id);
