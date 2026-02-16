@@ -35,6 +35,10 @@ public:
     void setData(uint8_t value){
         data = value;
     }
+
+    static constexpr uint8_t getDataBodyLen(){
+		return dataBodyLen;
+	}
 };
 
 class SensorStatus : public Base{
@@ -70,6 +74,10 @@ public:
     void setData(const CommandDataType::SensorStatus &value){
         data = value;
     }
+
+    static constexpr uint8_t getDataBodyLen(){
+		return dataBodyLen;
+	}
 };
 
 class Request : public Base{
@@ -86,6 +94,10 @@ public:
     void setRequestCommandId(COMMAND_ID id){
         requestID = id;
     }
+
+    static constexpr uint8_t getDataBodyLen(){
+		return dataBodyLen;
+	}
 };
 
 class Goal : public Base{
@@ -116,6 +128,9 @@ public:
     void setData(const CommandDataType::Coordinates &value){
         data = value;
     }
+    static constexpr uint8_t getDataBodyLen(){
+		return dataBodyLen;
+	}
 };
 
 class Altitude : public Base{
@@ -145,6 +160,9 @@ public:
     void setData(const CommandDataType::Altitude &value){
         data = value;
     }
+    static constexpr uint8_t getDataBodyLen(){
+		return dataBodyLen;
+	}
 };
 
 class Mode : public Base{
@@ -160,7 +178,7 @@ public:
     explicit Mode(uint8_t data):data(data){}
     Mode(std::function<void(uint8_t&)> update, uint8_t data = 0):data(data),update(update){}
     COMMAND_ID onReceive(std::vector<uint8_t> &body);
-    std::vector<uint8_t> transmit();
+    std::vector<uint8_t> transmit() override;
     void setCallback(std::function<void(uint8_t)> callback){
         this->callback = callback;
     }
@@ -173,6 +191,9 @@ public:
     void setData(uint8_t value){
         data = value;
     }
+    static constexpr uint8_t getDataBodyLen(){
+		return dataBodyLen;
+	}
 };
 
 class AbsoluteNavigation : public Base {
@@ -202,6 +223,9 @@ public:
     void setData(const CommandDataType::AbsoluteNavigation &value){
         data = value;
     }
+    static constexpr uint8_t getDataBodyLen(){
+		return dataBodyLen;
+	}
 };
 
 class RelativeNavigation : public Base {
@@ -231,6 +255,9 @@ public:
     void setData(const CommandDataType::RelativeNavigation &value){
         data = value;
     }
+    static constexpr uint8_t getDataBodyLen(){
+		return dataBodyLen;
+	}
 };
 
 class ServoConfig : public Base {
@@ -259,6 +286,9 @@ public:
     void setData(const CommandDataType::ServoConfig &value){
         data = value;
     }
+    static constexpr uint8_t getDataBodyLen(){
+		return dataBodyLen;
+	}
 };
 class ServoConfig_prachuteLeft : public ServoConfig{
     COMMAND_ID id = COMMAND_ID::ServoConfig_prachuteLeft;
