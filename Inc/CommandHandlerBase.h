@@ -39,7 +39,7 @@ protected:
 
 public:
 	Base();
-	COMMAND_ID onReceive(std::vector<uint8_t> &body){
+	virtual COMMAND_ID onReceive(std::vector<uint8_t> &body){
 		return COMMAND_ID::Last;
 	};
 
@@ -48,7 +48,7 @@ public:
 	 * This function shuold be called throudh CommandManager::transmit(COMMAND_ID).
 	 * The return vector is data body
 	 */
-	std::vector<uint8_t> transmit(){
+	virtual std::vector<uint8_t> transmit(){
 		return std::vector<uint8_t>();
 	}
 
