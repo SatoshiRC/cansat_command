@@ -69,14 +69,15 @@ public:
             copyCursor = 0;
         }
 
-        if(len > readCursor){
-            resetBuffer();
-            return COMMAND_ID::Last;
-        }
+//        if(len > readCursor){
+//            resetBuffer();
+//            return COMMAND_ID::Last;
+//        }
 
         std::copy(__first, __last, rBuffer.begin()+copyCursor);
+        copyCursor += len;
         int8_t reamingLen = copyCursor - readCursor;
-        while(reamingLen){
+        while(reamingLen < 0){
             reamingLen += rBuffer.size();
         }
         for(; reamingLen>0; reamingLen--){
@@ -95,7 +96,7 @@ public:
                 //Wait for next receive.
                 break;
             }
-            if(rBuffer[(readCursor + frameLen)%rBuffer.size()] != STOP_BYTE){
+            if(rBuffer[(readCursor + frameLen - 1)%rBuffer.size()] != STOP_BYTE){
                 readCursor = (readCursor+1)%rBuffer.size();
                 continue;
             }
@@ -127,7 +128,7 @@ public:
     COMMAND_ID onReceiveFrame(const uint8_t* __first, const uint8_t* __last){
         //validate frame
         //check start and stop byte
-        if(*__first != START_BYTE || *__first != STOP_BYTE){
+        if(*__first != START_BYTE || *(__last-1) != STOP_BYTE){
             return COMMAND_ID::Last;
         }
         //check sum
