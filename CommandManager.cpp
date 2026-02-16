@@ -16,7 +16,7 @@ namespace command{
 	std::vector<uint8_t> CommandManager::constructTransmitFrame(const COMMAND_ID id){
 		auto res = commandHandlers[static_cast<uint8_t>(id)]->transmit();
 		
-		//check sum
+        //check sum
 		uint8_t sum = static_cast<uint8_t>(id);
 		for(const auto& e : res){
 			sum += e;
@@ -24,6 +24,7 @@ namespace command{
 
 		res.push_back(sum);
 		res.push_back(STOP_BYTE);
+        res.insert(res.begin(), static_cast<uint8_t>(id));
 		res.insert(res.begin(), START_BYTE);
 
 		return res;
