@@ -56,9 +56,9 @@ public:
 		this->callback = callback;
 	}
 
-	static constexpr uint8_t getDataBodyLen(){
-		return dataBodyLen;
-	}
+//	virtual uint8_t getDataBodyLen(){
+//		return dataBodyLen;
+//	}
 
 
 };
