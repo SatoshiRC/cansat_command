@@ -89,12 +89,12 @@ std::vector<uint8_t> Goal::transmit(){
 }
 
 COMMAND_ID Altitude::onReceive(std::vector<uint8_t> &body){
-    auto it = body.begin();
-    std::copy(it,it+2, &data.altitude());
+    uint8_t* it = (uint8_t*)body.data();
+    std::copy(it,it+2, (uint8_t*)&data.altitude());
     it += 2;
-    std::copy(it, it+4, &data.pressure());
+    std::copy(it, it+4, (uint8_t*)&data.pressure());
     it += 4;
-    std::copy(it, it+4, &data.temperature());
+    std::copy(it, it+4, (uint8_t*)&data.temperature());
 
     callback(data);
 
