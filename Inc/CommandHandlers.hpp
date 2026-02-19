@@ -300,6 +300,37 @@ class ServoConfig_prachuteRight : public ServoConfig {
 class ServoConfig_stabilizer : public ServoConfig {
     COMMAND_ID id = COMMAND_ID::ServoConfig_stabilizer;
 };
+
+class Gps : public Base{
+    static constexpr uint8_t dataBodyLen = 17;
+
+    CommandDataType::GPS data;
+    std::function<void(CommandDataType::GPS&)> callback = [](CommandDataType::GPS& data){};
+    std::function<void(CommandDataType::GPS&)> update = [](CommandDataType::GPS&){ };
+
+public:
+    Gps() = default;
+    explicit Gps(const CommandDataType::GPS &data):data(data){}
+    Gps(std::function<void(CommandDataType::GPS&)> update,
+                const CommandDataType::GPS &data = CommandDataType::GPS()):data(data),update(update){}
+    COMMAND_ID onReceive(std::vector<uint8_t> &body);
+    std::vector<uint8_t> transmit();
+    void setCallback(std::function<void(CommandDataType::GPS&)> callback){
+        this->callback = callback;
+    }
+    void setUpdate(std::function<void(CommandDataType::GPS&)> func){
+        update = func;
+    }
+    const CommandDataType::GPS& getData() const {
+        return data;
+    }
+    void setData(const CommandDataType::GPS &value){
+        data = value;
+    }
+    static constexpr uint8_t getDataBodyLen(){
+		return dataBodyLen;
+	}
+};
 } /*namespace command*/
 
 #endif /* COMMAND_INC_COMMANDHANDLERS_HPP_ */

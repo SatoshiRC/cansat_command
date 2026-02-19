@@ -67,8 +67,9 @@ std::vector<uint8_t> Request::transmit(){
 }
 
 COMMAND_ID Goal::onReceive(std::vector<uint8_t> &body){
-    std::copy(body.begin(), body.begin()+8, &data.latitude());
-    std::copy(body.begin()+8, body.begin()+16, &data.longitude());
+    copy(body.data(), &data.latitude(), 8);
+    uint8_t offset = 8;
+    copy(body.data() + offset, &data.longitude(), 8);
     callback(data);
     
     return COMMAND_ID::Last;
@@ -283,6 +284,34 @@ std::vector<uint8_t> ServoConfig::transmit(){
     size = 2;
     copy(&data.closeCount(), res.data()+offset, size);
 
+    return res;
+}
+
+COMMAND_ID Gps::onReceive(std::vector<uint8_t> &body){
+    copy(body.data(), &data.latitude(), 8);
+    uint8_t offset = 8;
+    copy(body.data() + offset, &data.longitude(), 8);
+    offset += 8;
+    copy(body.data() + offset, &data.fixStatus(), 1);
+    callback(data);
+    
+    return COMMAND_ID::Last;
+}
+
+std::vector<uint8_t> Gps::transmit(){
+    update(data);
+    std::vector<uint8_t> res(dataBodyLen);
+
+    uint8_t offset = 0;
+    uint8_t size = 8;
+    copy(&data.latitude(), res.data() + offset, size);
+    offset += size;
+    size = 8;
+    copy(&data.longitude(), res.data() + offset, size);
+    offset += size;
+    size = 1;
+    copy(&data.fixStatus(), res.data() + offset, size);
+    
     return res;
 }
 } /*namespace command*/

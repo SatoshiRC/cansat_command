@@ -133,5 +133,22 @@ public:
     const ServoState& state() const { return _state; }
 };
 
+class GPS {
+    double _latitude = 0;
+    double _longitude = 0;
+    uint8_t _fixStatus = 0;
+
+public:
+    double& latitude() { return _latitude; }
+    const double& latitude() const { return _latitude; }
+
+    double& longitude() { return _longitude; }
+    const double& longitude() const { return _longitude; }
+
+    uint8_t& fixStatus() { return _fixStatus; }
+    const uint8_t& fixStatus() const { return _fixStatus; }
+
+};
+
 } // namespace DataType
 #endif /* DATA_TYPE_HPP */

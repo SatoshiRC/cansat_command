@@ -34,6 +34,7 @@ class CommandManager {
         ServoConfig_prachuteLeft::getDataBodyLen(),
         ServoConfig_prachuteRight::getDataBodyLen(),
         ServoConfig_stabilizer::getDataBodyLen(),
+        Gps::getDataBodyLen(),
 	};
 
     std::array<uint8_t, static_cast<size_t>((*getMaxElement(commandLen.begin(), commandLen.end())+4)*2)> rBuffer = {};
