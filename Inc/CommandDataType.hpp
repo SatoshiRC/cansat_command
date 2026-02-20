@@ -150,5 +150,20 @@ public:
 
 };
 
+class IMU {
+    std::array<float, 3> _accel = {};
+    std::array<float, 3> _gyro = {};
+    std::array<float, 3> _magnet = {};
+public:
+    std::array<float, 3>& accel() { return _accel; }
+    const std::array<float, 3>& accel() const { return _accel; }
+
+    std::array<float, 3>& gyro() { return _gyro; }
+    const std::array<float, 3>& gyro() const { return _gyro; }
+
+    std::array<float, 3>& magnet() { return _magnet; }
+    const std::array<float, 3>& magnet() const { return _magnet; }
+};
+
 } // namespace DataType
 #endif /* DATA_TYPE_HPP */

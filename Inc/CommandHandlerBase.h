@@ -27,6 +27,7 @@ enum class COMMAND_ID{
 	ServoConfig_prachuteRight,
 	ServoConfig_stabilizer,
 	GPS,
+	IMU,
 	Last
 };
 

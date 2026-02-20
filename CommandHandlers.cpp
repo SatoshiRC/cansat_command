@@ -314,6 +314,36 @@ std::vector<uint8_t> Gps::transmit(){
     
     return res;
 }
+
+COMMAND_ID Imu::onReceive(std::vector<uint8_t> &body){
+    uint8_t offset = 0;
+    uint8_t size = 4*3;
+    copy(body.data()+offset, data.accel().data(), size);
+    offset+=size;
+    size = 4*3;
+    copy(body.data()+offset, data.accel().data(), size);
+    offset+=size;
+    size = 4*3;
+    copy(body.data()+offset, data.accel().data(), size);
+    callback(data);
+
+    return COMMAND_ID::Last;
+}
+
+std::vector<uint8_t> Imu::transmit(){
+    update(data);
+
+    std::vector<uint8_t> res(dataBodyLen);
+    uint8_t offset = 0;
+    uint8_t size = 4*3;
+    copy(data.accel().data(), res.data()+offset, size);
+    offset += size;
+    size = 4*3;
+    copy(data.gyro().data(), res.data()+offset, size);
+    offset += size;
+    size = 4*3;
+    copy(data.magnet().data(), res.data()+offset, size);
+}
 } /*namespace command*/
 
 

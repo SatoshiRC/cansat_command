@@ -331,6 +331,37 @@ public:
 		return dataBodyLen;
 	}
 };
+
+class Imu : public Base{
+    static constexpr uint8_t dataBodyLen = 36;
+
+    CommandDataType::IMU data;
+    std::function<void(CommandDataType::IMU&)> callback = [](CommandDataType::IMU& data){};
+    std::function<void(CommandDataType::IMU&)> update = [](CommandDataType::IMU&){ };
+
+public:
+    Imu() = default;
+    explicit Imu(const CommandDataType::IMU &data):data(data){}
+    Imu(std::function<void(CommandDataType::IMU&)> update,
+                const CommandDataType::IMU &data = CommandDataType::IMU()):data(data),update(update){}
+    COMMAND_ID onReceive(std::vector<uint8_t> &body);
+    std::vector<uint8_t> transmit();
+    void setCallback(std::function<void(CommandDataType::IMU&)> callback){
+        this->callback = callback;
+    }
+    void setUpdate(std::function<void(CommandDataType::IMU&)> func){
+        update = func;
+    }
+    const CommandDataType::IMU& getData() const {
+        return data;
+    }
+    void setData(const CommandDataType::IMU &value){
+        data = value;
+    }
+    static constexpr uint8_t getDataBodyLen(){
+		return dataBodyLen;
+	}
+};
 } /*namespace command*/
 
 #endif /* COMMAND_INC_COMMANDHANDLERS_HPP_ */
