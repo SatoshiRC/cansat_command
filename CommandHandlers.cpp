@@ -321,10 +321,10 @@ COMMAND_ID Imu::onReceive(std::vector<uint8_t> &body){
     copy(body.data()+offset, data.accel().data(), size);
     offset+=size;
     size = 4*3;
-    copy(body.data()+offset, data.accel().data(), size);
+    copy(body.data()+offset, data.gyro().data(), size);
     offset+=size;
     size = 4*3;
-    copy(body.data()+offset, data.accel().data(), size);
+    copy(body.data()+offset, data.magnet().data(), size);
     callback(data);
 
     return COMMAND_ID::Last;
