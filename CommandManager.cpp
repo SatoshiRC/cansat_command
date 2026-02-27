@@ -29,6 +29,26 @@ namespace command{
 
 		return res;
 	}
+
+	void CommandManager::constructTransmitFrameToBuffer(const COMMAND_ID id, uint8_t* buffer, uint8_t& length){
+		auto res = commandHandlers[static_cast<uint8_t>(id)]->transmit();
+		
+        //check sum
+		uint8_t sum = static_cast<uint8_t>(id);
+		for(const auto& e : res){
+			sum += e;
+		}
+
+		uint8_t pos = 0;
+		buffer[pos++] = START_BYTE;
+		buffer[pos++] = static_cast<uint8_t>(id);
+		for(const auto& e : res){
+			buffer[pos++] = e;
+		}
+		buffer[pos++] = sum;
+		buffer[pos++] = STOP_BYTE;
+		length = pos;
+	}
 	__attribute__((weak)) void CommandManager::transmit(const COMMAND_ID id){
 		auto frame = constructTransmitFrame(id);
 	}
