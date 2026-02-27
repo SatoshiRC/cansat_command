@@ -53,6 +53,7 @@ public:
 	}
   	
 	std::vector<uint8_t> constructTransmitFrame(const COMMAND_ID id);
+	void constructTransmitFrameToBuffer(const COMMAND_ID id, uint8_t* buffer, uint8_t& length);
 	void transmit(const COMMAND_ID id);
 
 	template<typename _ForwardIterator>
@@ -70,11 +71,6 @@ public:
             len = __last - __first;
             copyCursor = 0;
         }
-
-//        if(len > readCursor){
-//            resetBuffer();
-//            return COMMAND_ID::Last;
-//        }
 
         std::copy(__first, __last, rBuffer.begin()+copyCursor);
         copyCursor += len;

@@ -343,6 +343,8 @@ std::vector<uint8_t> Imu::transmit(){
     offset += size;
     size = 4*3;
     copy(data.magnet().data(), res.data()+offset, size);
+
+    return res;
 }
 } /*namespace command*/
 
