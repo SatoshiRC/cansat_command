@@ -80,63 +80,71 @@ public:
 
         std::copy(__first, __last, rBuffer.begin()+copyCursor);
         copyCursor = (copyCursor + static_cast<uint16_t>(len)) % rBuffer.size();
-        int16_t reamingLen = (copyCursor - readCursor + static_cast<int16_t>(rBuffer.size())) % rBuffer.size();
-        if(reamingLen == 0 && len > 0){
-            reamingLen = rBuffer.size();
-        }
-        for(; reamingLen>0; reamingLen--){
-            if(rBuffer[readCursor] != START_BYTE){
-                readCursor = (readCursor+1)%rBuffer.size();
-                continue;
-            }
-            uint8_t possibleId = rBuffer[(readCursor+1)%rBuffer.size()];
-            if(possibleId >= static_cast<uint8_t>(COMMAND_ID::Last)){
-                //There is no valid id for possibleId.
-                readCursor = (readCursor+1)%rBuffer.size();
-                continue;
-            }
-            uint8_t frameLen = commandLen[possibleId]+4;
-            if(reamingLen < frameLen){
-                //Wait for next receive.
-                break;
-            }
-            if(rBuffer[(readCursor + frameLen - 1)%rBuffer.size()] != STOP_BYTE){
-                readCursor = (readCursor+1)%rBuffer.size();
-                continue;
-            }
 
-            std::vector<uint8_t> frame(frameLen);
-            uint16_t copiedLen = 0;
-            uint16_t nextCursor = (readCursor + frameLen) % rBuffer.size();
-            if(readCursor < nextCursor){
-                // Data is contiguous
-                std::copy(rBuffer.begin()+readCursor, rBuffer.begin()+nextCursor, frame.begin());
-                copiedLen = frameLen;
-            } else {
-                // Data wraps around buffer
-                uint16_t firstPart = rBuffer.size() - readCursor;
-                std::copy(rBuffer.begin()+readCursor, rBuffer.end(), frame.begin());
-                copiedLen = firstPart;
-                uint16_t secondPart = nextCursor;
-                if(secondPart > 0){
-                    std::copy(rBuffer.begin(), rBuffer.begin()+secondPart, frame.begin() + copiedLen);
-                }
-            }
-            COMMAND_ID id = onReceiveFrame(frame);
-            readCursor = nextCursor;
-            return id;
-        }
         return COMMAND_ID::Last;
 	}
 
     COMMAND_ID onReceiveFrame(const std::vector<uint8_t> &frame){
         if(frame.empty()) return COMMAND_ID::Last;
-        return onReceiveFrame(&*frame.begin(), &*frame.end());
+        return receive(frame.begin(), frame.end());
     }
 
 	template<size_t size>
     COMMAND_ID onReceiveFrame(const std::array<uint8_t, size> &frame){
-        return onReceiveFrame(frame.begin(), frame.end());
+        return receive(frame.begin(), frame.end());
+	}
+
+	void processReceive(){
+		if(copyCursor == readCursor){
+			return;
+		}
+		int16_t reamingLen = (copyCursor - readCursor + static_cast<int16_t>(rBuffer.size())) % rBuffer.size();
+		if(reamingLen == 0){
+			reamingLen = rBuffer.size();
+		}
+		for(; reamingLen>0; reamingLen--){
+			if(rBuffer[readCursor] != START_BYTE){
+				readCursor = (readCursor+1)%rBuffer.size();
+				continue;
+			}
+			uint8_t possibleId = rBuffer[(readCursor+1)%rBuffer.size()];
+			if(possibleId >= static_cast<uint8_t>(COMMAND_ID::Last)){
+				//There is no valid id for possibleId.
+				readCursor = (readCursor+1)%rBuffer.size();
+				continue;
+			}
+			uint8_t frameLen = commandLen[possibleId]+4;
+			if(reamingLen < frameLen){
+				//Wait for next receive.
+				break;
+			}
+			if(rBuffer[(readCursor + frameLen - 1)%rBuffer.size()] != STOP_BYTE){
+				readCursor = (readCursor+1)%rBuffer.size();
+				continue;
+			}
+
+			std::vector<uint8_t> frame(frameLen);
+			uint16_t copiedLen = 0;
+			uint16_t nextCursor = (readCursor + frameLen) % rBuffer.size();
+			if(readCursor < nextCursor){
+				// Data is contiguous
+				std::copy(rBuffer.begin()+readCursor, rBuffer.begin()+nextCursor, frame.begin());
+				copiedLen = frameLen;
+			} else {
+				// Data wraps around buffer
+				uint16_t firstPart = rBuffer.size() - readCursor;
+				std::copy(rBuffer.begin()+readCursor, rBuffer.end(), frame.begin());
+				copiedLen = firstPart;
+				uint16_t secondPart = nextCursor;
+				if(secondPart > 0){
+					std::copy(rBuffer.begin(), rBuffer.begin()+secondPart, frame.begin() + copiedLen);
+				}
+			}
+			COMMAND_ID id = onReceiveFrame(&*frame.begin(), &*frame.end());
+			readCursor = nextCursor;
+			reamingLen -= frameLen + 1;
+		//            return id;
+		}
 	}
 
     COMMAND_ID onReceiveFrame(const uint8_t* __first, const uint8_t* __last){
