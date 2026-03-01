@@ -94,9 +94,9 @@ public:
         return receive(frame.begin(), frame.end());
 	}
 
-	void processReceive(){
+	COMMAND_ID processReceive(){
 		if(copyCursor == readCursor){
-			return;
+            return COMMAND_ID::Last;
 		}
 		int16_t reamingLen = (copyCursor - readCursor + static_cast<int16_t>(rBuffer.size())) % rBuffer.size();
 		if(reamingLen == 0){
@@ -143,7 +143,7 @@ public:
 			COMMAND_ID id = onReceiveFrame(&*frame.begin(), &*frame.end());
 			readCursor = nextCursor;
 			reamingLen -= frameLen + 1;
-		//            return id;
+            return id;
 		}
 	}
 
