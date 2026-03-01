@@ -36,7 +36,7 @@ class Base {
 	COMMAND_ID id = COMMAND_ID::Last;
 
 protected:
-	std::function<void(void)> callback = nullptr;
+	std::function<void(void)> callback = [](void){};
 	void copy(const void* src, const void* dist, const uint8_t len);
 
 public:

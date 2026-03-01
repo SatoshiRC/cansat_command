@@ -9,11 +9,15 @@
 
 namespace command{
 	CommandManager::CommandManager() {
-		// TODO Auto-generated constructor stub
-
+		// Initialize all handlers to nullptr
+		commandHandlers.fill(nullptr);
 	}
 
 	std::vector<uint8_t> CommandManager::constructTransmitFrame(const COMMAND_ID id){
+		// Check if handler is valid before using
+		if(static_cast<uint8_t>(id) >= static_cast<uint8_t>(COMMAND_ID::Last) || commandHandlers[static_cast<uint8_t>(id)] == nullptr){
+			return std::vector<uint8_t>();
+		}
 		auto res = commandHandlers[static_cast<uint8_t>(id)]->transmit();
 		
         //check sum
@@ -31,6 +35,15 @@ namespace command{
 	}
 
 	void CommandManager::constructTransmitFrameToBuffer(const COMMAND_ID id, uint8_t* buffer, uint8_t& length){
+		// Check if handler is valid before using
+		if(buffer == nullptr){
+			length = 0;
+			return;
+		}
+		if(static_cast<uint8_t>(id) >= static_cast<uint8_t>(COMMAND_ID::Last) || commandHandlers[static_cast<uint8_t>(id)] == nullptr){
+			length = 0;
+			return;
+		}
 		auto res = commandHandlers[static_cast<uint8_t>(id)]->transmit();
 		
         //check sum
@@ -50,6 +63,10 @@ namespace command{
 		length = pos;
 	}
 	__attribute__((weak)) void CommandManager::transmit(const COMMAND_ID id){
+		// Check if handler is valid before using
+		if(static_cast<uint8_t>(id) >= static_cast<uint8_t>(COMMAND_ID::Last) || commandHandlers[static_cast<uint8_t>(id)] == nullptr){
+			return;
+		}
 		auto frame = constructTransmitFrame(id);
 	}
 

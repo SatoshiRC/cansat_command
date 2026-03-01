@@ -21,7 +21,6 @@ constexpr ForwardIterator getMaxElement(const ForwardIterator first, const Forwa
 namespace command {
 
 class CommandManager {
-	std::array<command::Base*, (uint8_t)COMMAND_ID::Last> commandHandlers;
 	static constexpr std::array<uint8_t, (uint8_t)COMMAND_ID::Last> commandLen = {
         ConnectionCheck::getDataBodyLen(),
         SensorStatus::getDataBodyLen(),
@@ -44,7 +43,8 @@ class CommandManager {
 
 	const uint8_t START_BYTE = 's';
 	const uint8_t STOP_BYTE = 'e';
-
+protected:
+    std::array<command::Base*, (uint8_t)COMMAND_ID::Last> commandHandlers;
 
 public:
 	CommandManager();
@@ -58,7 +58,10 @@ public:
 
 	template<typename _ForwardIterator>
     COMMAND_ID receive(_ForwardIterator __first, _ForwardIterator __last){
-        uint8_t len = __last - __first;
+        size_t len = std::distance(__first, __last);
+        if(len == 0){
+            return COMMAND_ID::Last;
+        }
         if(len > rBuffer.size()){
             resetBuffer();
             return COMMAND_ID::Last;
@@ -66,17 +69,20 @@ public:
 
         //avoid over-flow
         if(rBuffer.size() < copyCursor + len){
-            std::copy(__first, __first + (rBuffer.size() - copyCursor), rBuffer.begin()+copyCursor);
-            __first += rBuffer.size() - copyCursor;
-            len = __last - __first;
+            size_t copyLen = rBuffer.size() - copyCursor;
+            if(copyLen > 0){
+                std::copy(__first, std::next(__first, copyLen), rBuffer.begin()+copyCursor);
+            }
+            std::advance(__first, copyLen);
+            len = std::distance(__first, __last);
             copyCursor = 0;
         }
 
         std::copy(__first, __last, rBuffer.begin()+copyCursor);
-        copyCursor += len;
-        int8_t reamingLen = copyCursor - readCursor;
-        while(reamingLen < 0){
-            reamingLen += rBuffer.size();
+        copyCursor = (copyCursor + static_cast<uint16_t>(len)) % rBuffer.size();
+        int16_t reamingLen = (copyCursor - readCursor + static_cast<int16_t>(rBuffer.size())) % rBuffer.size();
+        if(reamingLen == 0 && len > 0){
+            reamingLen = rBuffer.size();
         }
         for(; reamingLen>0; reamingLen--){
             if(rBuffer[readCursor] != START_BYTE){
@@ -100,21 +106,31 @@ public:
             }
 
             std::vector<uint8_t> frame(frameLen);
-            uint8_t copiedLen = 0;
-            if(readCursor + frameLen > rBuffer.size()){
+            uint16_t copiedLen = 0;
+            uint16_t nextCursor = (readCursor + frameLen) % rBuffer.size();
+            if(readCursor < nextCursor){
+                // Data is contiguous
+                std::copy(rBuffer.begin()+readCursor, rBuffer.begin()+nextCursor, frame.begin());
+                copiedLen = frameLen;
+            } else {
+                // Data wraps around buffer
+                uint16_t firstPart = rBuffer.size() - readCursor;
                 std::copy(rBuffer.begin()+readCursor, rBuffer.end(), frame.begin());
-                copiedLen = rBuffer.size() - readCursor;
-                readCursor = 0;
+                copiedLen = firstPart;
+                uint16_t secondPart = nextCursor;
+                if(secondPart > 0){
+                    std::copy(rBuffer.begin(), rBuffer.begin()+secondPart, frame.begin() + copiedLen);
+                }
             }
-            std::copy(rBuffer.begin()+readCursor, rBuffer.begin()+readCursor+frameLen-copiedLen, frame.begin() + copiedLen);
             COMMAND_ID id = onReceiveFrame(frame);
-            readCursor = readCursor + frameLen - copiedLen;
+            readCursor = nextCursor;
             return id;
         }
         return COMMAND_ID::Last;
 	}
 
     COMMAND_ID onReceiveFrame(const std::vector<uint8_t> &frame){
+        if(frame.empty()) return COMMAND_ID::Last;
         return onReceiveFrame(&*frame.begin(), &*frame.end());
     }
 
@@ -124,6 +140,14 @@ public:
 	}
 
     COMMAND_ID onReceiveFrame(const uint8_t* __first, const uint8_t* __last){
+        //validate frame pointer range
+        if(__first == nullptr || __last == nullptr || __first >= __last){
+            return COMMAND_ID::Last;
+        }
+        //check minimum frame length (START + ID + DATA + CHECKSUM + STOP = at least 4 bytes)
+        if(__last - __first < 4){
+            return COMMAND_ID::Last;
+        }
         //validate frame
         //check start and stop byte
         if(*__first != START_BYTE || *(__last-1) != STOP_BYTE){
@@ -140,6 +164,9 @@ public:
         }
 
         const COMMAND_ID rid = static_cast<COMMAND_ID>(*(__first + 1));
+        if(static_cast<uint8_t>(rid) >= static_cast<uint8_t>(COMMAND_ID::Last)){
+            return COMMAND_ID::Last;
+        }
         std::vector<uint8_t> frameBody(__first+2, __last-2);
 
         //check body length
@@ -147,6 +174,10 @@ public:
             return COMMAND_ID::Last;
         }
 
+        //check if handler is valid
+        if(commandHandlers[static_cast<uint8_t>(rid)] == nullptr){
+            return COMMAND_ID::Last;
+        }
         const COMMAND_ID tid = commandHandlers[static_cast<uint8_t>(rid)]->onReceive(frameBody);
         transmit(tid);
         return rid;
