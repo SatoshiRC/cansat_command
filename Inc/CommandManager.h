@@ -102,7 +102,7 @@ public:
 		if(reamingLen == 0){
 			reamingLen = rBuffer.size();
 		}
-		for(; reamingLen>0; reamingLen--){
+        for(; reamingLen>1; reamingLen--){
 			if(rBuffer[readCursor] != START_BYTE){
 				readCursor = (readCursor+1)%rBuffer.size();
 				continue;
@@ -145,6 +145,7 @@ public:
 			reamingLen -= frameLen + 1;
             return id;
 		}
+        return COMMAND_ID::Last;
 	}
 
     COMMAND_ID onReceiveFrame(const uint8_t* __first, const uint8_t* __last){
