@@ -165,5 +165,13 @@ public:
     const std::array<float, 3>& magnet() const { return _magnet; }
 };
 
+struct DecentLog{
+	int16_t altitude = 0;
+	bool isParachuteReleased = false;
+	bool isStabilizerDeploied = false;
+    int8_t leftMotorPower = 0;
+    int8_t rightMotorPower = 0;
+};
+
 } // namespace DataType
 #endif /* DATA_TYPE_HPP */

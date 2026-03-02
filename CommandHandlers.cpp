@@ -346,6 +346,39 @@ std::vector<uint8_t> Imu::transmit(){
 
     return res;
 }
+
+COMMAND_ID DecentLog::onReceive(std::vector<uint8_t> &body){
+    uint8_t offset = 0;
+    uint8_t size = 2;
+    copy(body.data()+offset, &data.altitude, size);
+    offset += size;
+    size = 1;
+    data.isParachuteReleased = body[offset] & 0b1;
+	data.isStabilizerDeploied = body[offset] & 0b1<<1;
+    offset += size;
+    copy(body.data()+offset, &data.leftMotorPower, size);
+    offset += size;
+    copy(body.data()+offset, &data.rightMotorPower, size);
+
+    return COMMAND_ID::Last;
+}
+
+std::vector<uint8_t> DecentLog::transmit(){
+	update(data);
+
+	std::vector<uint8_t> res(dataBodyLen);
+    uint8_t offset = 0;
+    uint8_t size = 2;
+    copy(&data.altitude, res.data()+offset, size);
+    offset += size;
+    size = 1;
+    res[offset] = static_cast<uint8_t>(data.isParachuteReleased) & (static_cast<uint8_t>(data.isStabilizerDeploied) << 1);
+    offset += size;
+    copy(&data.leftMotorPower, res.data()+offset, size);
+    offset += size;
+    copy(&data.rightMotorPower, res.data()+offset, size);
+    return res;
+}
 } /*namespace command*/
 
 

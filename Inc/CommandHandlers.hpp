@@ -362,6 +362,33 @@ public:
 		return dataBodyLen;
 	}
 };
+
+class DecentLog: public Base{
+	static constexpr uint8_t dataBodyLen = 5;
+	CommandDataType::DecentLog data;
+
+    std::function<void(CommandDataType::DecentLog&)> callback = [](CommandDataType::DecentLog& data){};
+    std::function<void(CommandDataType::DecentLog&)> update = [](CommandDataType::DecentLog&){ };
+public:
+	DecentLog() = default;
+	COMMAND_ID onReceive(std::vector<uint8_t> &body);
+	std::vector<uint8_t> transmit();
+	void setCallback(std::function<void(CommandDataType::DecentLog&)> callback){
+		this->callback = callback;
+	}
+	void setUpdate(std::function<void(CommandDataType::DecentLog&)> func){
+		update = func;
+	}
+    const CommandDataType::DecentLog& getData() const {
+        return data;
+    }
+    void setData(const CommandDataType::DecentLog &value){
+        data = value;
+    }
+    static constexpr uint8_t getDataBodyLen(){
+		return dataBodyLen;
+	}
+};
 } /*namespace command*/
 
 #endif /* COMMAND_INC_COMMANDHANDLERS_HPP_ */

@@ -28,6 +28,7 @@ enum class COMMAND_ID{
 	ServoConfig_stabilizer,
 	GPS,
 	IMU,
+	DecentLog,
 	Last
 };
 
