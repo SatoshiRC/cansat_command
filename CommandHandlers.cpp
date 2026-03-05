@@ -182,17 +182,11 @@ std::vector<uint8_t> AbsoluteNavigation::transmit(){
 
 COMMAND_ID RelativeNavigation::onReceive(std::vector<uint8_t> &body){
     uint8_t offset = 0;
-    uint8_t size = 3;
+    uint8_t size = 4;
     copy(body.data() + offset, &data.relativePositionNorth(), size);
-    if (body[offset] >> 7){
-        data.relativePositionNorth() &= uint32_t(0xff)<<8*3;
-    }
     offset += size;
-    size = 3;
+    size = 4;
     copy(body.data() + offset, &data.relativePositionEast(), size);
-    if (body[offset] >> 7){
-        data.relativePositionEast() &= uint32_t(0xff)<<8*3;
-    }
     offset += size;
     size = 2;
     copy(body.data() + offset, &data.headingDirection(), size);
@@ -219,11 +213,11 @@ std::vector<uint8_t> RelativeNavigation::transmit(){
     std::vector<uint8_t> res(dataBodyLen);
 
     uint8_t offset = 0;
-    uint8_t size = 3;
-    copy(reinterpret_cast<uint8_t*>(&data.relativePositionNorth())+1, res.data() + offset, size);
+    uint8_t size = 4;
+    copy(&data.relativePositionNorth(), res.data() + offset, size);
     offset += size;
-    size = 3;
-    copy(reinterpret_cast<uint8_t*>(&data.relativePositionEast())+1, res.data() + offset, size);
+    size = 4;
+    copy(&data.relativePositionEast(), res.data() + offset, size);
     offset += size;
     size = 2;
     copy((uint8_t*)&data.headingDirection(), res.data() + offset, size);
