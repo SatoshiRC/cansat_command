@@ -206,7 +206,8 @@ COMMAND_ID RelativeNavigation::onReceive(std::vector<uint8_t> &body){
     
     offset++;
     data.tofDistance() += body[offset++];
-    data.goalDirection() = body[offset];
+    size = 2;
+    copy(body.data() + offset, (uint8_t*)&data.goalDirection(), size);
 
     callback(data);
 
@@ -240,7 +241,8 @@ std::vector<uint8_t> RelativeNavigation::transmit(){
     offset++;
     res[offset] = data.tofDistance() & 0xff;
     offset++;
-    res[offset] = data.goalDirection();
+    size = 2;
+    copy((uint8_t*)&data.goalDirection(), res.data() + offset, size);
 
     return res;
 }
@@ -372,7 +374,7 @@ std::vector<uint8_t> DecentLog::transmit(){
     copy(&data.altitude, res.data()+offset, size);
     offset += size;
     size = 1;
-    res[offset] = static_cast<uint8_t>(data.isParachuteReleased) & (static_cast<uint8_t>(data.isStabilizerDeploied) << 1);
+    res[offset] = (static_cast<uint8_t>(data.isParachuteReleased)&0b1) + ((static_cast<uint8_t>(data.isStabilizerDeploied) << 1) & 0b10);
     offset += size;
     copy(&data.leftMotorPower, res.data()+offset, size);
     offset += size;

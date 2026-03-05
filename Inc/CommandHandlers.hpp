@@ -229,7 +229,7 @@ public:
 };
 
 class RelativeNavigation : public Base {
-    static constexpr uint8_t dataBodyLen = 13;
+    static constexpr uint8_t dataBodyLen = 14;
     COMMAND_ID id = COMMAND_ID::RelativeNavigationLog;
 
     CommandDataType::RelativeNavigation data;
