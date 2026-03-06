@@ -197,8 +197,8 @@ COMMAND_ID RelativeNavigation::onReceive(std::vector<uint8_t> &body){
     data.isDetectedGoalOnCamera() = body[offset] & (0b1 << 7);
     data.isDetectedGoalOnTof() = body[offset] & (0b1 << 6);
     data.tofDistance() = (uint16_t)(body[offset]&0x1f) << 8;
-    
     offset++;
+    
     data.tofDistance() += body[offset++];
     size = 2;
     copy(body.data() + offset, (uint8_t*)&data.goalDirection(), size);

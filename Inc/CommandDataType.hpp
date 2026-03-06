@@ -90,7 +90,7 @@ class RelativeNavigation : public AbsoluteNavigation {
     bool _isDetectedGoalOnCamera = false;
     bool _isDetectedGoalOnTof = false;
     int16_t _tofDistance = 0;
-    int8_t _goalDirection = 0;
+    int16_t _goalDirection = 0;
 
 public:
     bool& isDetectedGoalOnCamera() { return _isDetectedGoalOnCamera; }
@@ -102,8 +102,8 @@ public:
     int16_t& tofDistance() { return _tofDistance; }
     const int16_t& tofDistance() const { return _tofDistance; }
 
-    int8_t& goalDirection() { return _goalDirection; }
-    const int8_t& goalDirection() const { return _goalDirection; }
+    int16_t& goalDirection() { return _goalDirection; }
+    const int16_t& goalDirection() const { return _goalDirection; }
 };
 
 enum class ServoState{
