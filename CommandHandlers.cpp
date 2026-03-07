@@ -230,8 +230,8 @@ std::vector<uint8_t> RelativeNavigation::transmit(){
     offset += size;
 
     res[offset] = data.isDetectedGoalOnCamera() << 7; 
-    res[offset] &= data.isDetectedGoalOnTof() << 6; 
-    res[offset] &= data.tofDistance() >> 8;
+    res[offset] |= data.isDetectedGoalOnTof() << 6;
+    res[offset] |= data.tofDistance() >> 8;
     offset++;
     res[offset] = data.tofDistance() & 0xff;
     offset++;
